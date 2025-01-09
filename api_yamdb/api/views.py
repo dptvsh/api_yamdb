@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
 
-from .models import Category, Genre, Title
+from reviews.models import Category, Genre, Title
 from .permissions import IsAdminOrReadOnly
 from .serializers import (
     CategorySerializer,
