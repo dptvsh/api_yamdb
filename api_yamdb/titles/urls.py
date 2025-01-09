@@ -9,5 +9,5 @@ router.register('genres', GenreViewSet, basename='genres')
 router.register('titles', TitleViewSet, basename='titles')
 
 urlpatterns = [
-    path('api/v1/', include(router.urls)),
+    path('v1/', include(router.urls)),
 ]

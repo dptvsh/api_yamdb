@@ -2,15 +2,18 @@ from django.db import models
 from django.db.models import Avg
 import datetime
 
+MAX_LENGTH_NAME = 256
+MAX_LENGTH_SLUG = 50
+
 
 class Category(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=MAX_LENGTH_NAME,
         verbose_name='Название категории'
     )
     slug = models.SlugField(
         unique=True,
-        max_length=50,
+        max_length=MAX_LENGTH_SLUG,
         verbose_name='Уникальный идентификатор'
     )
 
@@ -24,12 +27,12 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=MAX_LENGTH_NAME,
         verbose_name='Название жанра'
     )
     slug = models.SlugField(
         unique=True,
-        max_length=50,
+        max_length=MAX_LENGTH_SLUG,
         verbose_name='Уникальный идентификатор'
     )
 
@@ -43,7 +46,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=MAX_LENGTH_NAME,
         verbose_name='Название произведения'
     )
     year = models.PositiveIntegerField(verbose_name='Год выпуска')
@@ -76,7 +79,7 @@ class Title(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = 'Проиведение'
+        verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
     def __str__(self):
