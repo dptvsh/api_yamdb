@@ -1,4 +1,7 @@
+from datetime import timedelta
 from pathlib import Path
+
+import smtp_pass
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,8 +20,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api',
-    'reviews',
+    'rest_framework',
+    'api.apps.ApiConfig',
+    'reviews.apps.ReviewsConfig'
 ]
 
 MIDDLEWARE = [
@@ -50,6 +54,34 @@ TEMPLATES = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+
+SIMPLE_JWT = {
+    'TOKEN_OBTAIN_SERIALIZER': 'api.serializers.MyTokenObtainPairSerializer',
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+
+# EMAIL_BACKEND = smtp_pass.EMAIL_BACKEND
+# EMAIL_HOST = smtp_pass.EMAIL_HOST
+# EMAIL_PORT = smtp_pass.EMAIL_PORT
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = smtp_pass.EMAIL_HOST_USER
+# EMAIL_HOST_PASSWORD = smtp_pass.EMAIL_HOST_PASSWORD
+# DEFAULT_FROM_EMAIL = smtp_pass.DEFAULT_FROM_EMAIL
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
 WSGI_APPLICATION = 'api_yamdb.wsgi.application'
 
 
@@ -59,6 +91,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+AUTH_USER_MODEL = 'reviews.MyUser'
 
 
 AUTH_PASSWORD_VALIDATORS = [

@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Category, Genre, Title
+from reviews.models import MyUser, Category, Genre, Title
+
+
+@admin.register(MyUser)
+class MyUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'bio', 'role')
+    exclude = ('confirmation_code', 'password', 'groups')
 
 
 @admin.register(Category)
