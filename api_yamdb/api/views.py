@@ -4,15 +4,18 @@ from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from rest_framework import filters, generics, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import MyUser
+from reviews.models import MyUser, Category, Genre, Title
 
-from api.permissions import IsAdminOrSuperUser
+from api.permissions import IsAdminOrSuperUser, IsAdminOrReadOnly
 from api.serializers import (MyTokenObtainPairSerializer,
                              UserRegistrationSerializer,
-                             UsersSerializerForAdmin, UsersSerializerForUser)
+                             UsersSerializerForAdmin, UsersSerializerForUser,
+                             CategorySerializer, GenreSerializer,
+                             TitleCreateUpdateSerializer, TitleSerializer)
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -115,3 +118,30 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = serializer_class(request.user)
         return Response(serializer.data)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = LimitOffsetPagination
+    lookup_field = 'slug'
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = LimitOffsetPagination
+    lookup_field = 'slug'
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = LimitOffsetPagination
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitleSerializer
+        return TitleCreateUpdateSerializer
