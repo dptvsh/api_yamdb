@@ -8,14 +8,15 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import MyUser, Category, Genre, Title
 
-from api.permissions import IsAdminOrSuperUser, IsAdminOrReadOnly
-from api.serializers import (MyTokenObtainPairSerializer,
-                             UserRegistrationSerializer,
-                             UsersSerializerForAdmin, UsersSerializerForUser,
-                             CategorySerializer, GenreSerializer,
-                             TitleCreateUpdateSerializer, TitleSerializer)
+from api.permissions import (IsAdminOrReadOnly, IsAdminOrSuperUser,
+                             IsAuthorOrReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, MyTokenObtainPairSerializer,
+                             ReviewSerializer, TitleCreateUpdateSerializer,
+                             TitleSerializer, UserRegistrationSerializer,
+                             UsersSerializerForAdmin, UsersSerializerForUser)
+from reviews.models import Category, Genre, MyUser, Review, Title
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -150,6 +151,11 @@ class TitleViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrReadOnly,)
+    pagination_class = LimitOffsetPagination
+    ordering = ('pub_date',)
+    http_method_names = [
+        'get', 'head', 'options', 'post', 'patch', 'delete'
+    ]
 
     def get_queryset(self):
         review_id = self.kwargs['review_id']
@@ -165,6 +171,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrReadOnly,)
+    pagination_class = LimitOffsetPagination
+    ordering = ('pub_date',)
+    http_method_names = [
+        'get', 'head', 'options', 'post', 'patch', 'delete'
+    ]
 
     def get_queryset(self):
         title_id = self.kwargs['title_id']

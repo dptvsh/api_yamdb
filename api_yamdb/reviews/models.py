@@ -1,7 +1,8 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Avg
-import datetime
 
 MAX_LENGTH_NAME = 256
 MAX_LENGTH_SLUG = 50
@@ -127,7 +128,7 @@ class Review(models.Model):
         verbose_name='Произведение', related_name='reviews',
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE,
+        MyUser, on_delete=models.CASCADE,
         verbose_name='Автор', related_name='reviews',
     )
     text = models.TextField(verbose_name='Текст')
@@ -154,7 +155,7 @@ class Comment(models.Model):
         verbose_name='Отзыв', related_name='comments',
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE,
+        MyUser, on_delete=models.CASCADE,
         verbose_name='Автор', related_name='comments',
     )
     text = models.TextField(verbose_name='Текст')

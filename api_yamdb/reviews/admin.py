@@ -1,16 +1,12 @@
 from django.contrib import admin
 
-<<<<<<< HEAD
-from .models import Category, Genre, Title, Comment, Review
-=======
-from reviews.models import MyUser, Category, Genre, Title
+from reviews.models import Category, Comment, Genre, MyUser, Review, Title
 
 
 @admin.register(MyUser)
 class MyUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'bio', 'role')
     exclude = ('confirmation_code', 'password', 'groups')
->>>>>>> e462cb418eeef748a33d69392c09a4b3b09480f6
 
 
 @admin.register(Category)

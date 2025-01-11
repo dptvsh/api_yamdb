@@ -1,8 +1,10 @@
 import re
 
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
-from reviews.models import MyUser, Title, Category, Genre
+
+from reviews.models import Category, Comment, Genre, MyUser, Review, Title
 
 
 class BaseUsersSerializer(serializers.ModelSerializer):
@@ -110,25 +112,22 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ['name', 'year', 'description', 'genre', 'category']
+        fields = ['id', 'name', 'year', 'description', 'genre', 'category']
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault(),
+    )
+    title = serializers.SlugRelatedField(
+        slug_field='name', read_only=True,
     )
 
     class Meta:
         model = Review
         fields = ('id', 'author', 'title', 'pub_date', 'text', 'score')
         read_only_fields = ('title',)
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title'),
-                message='Вы уже оставляли отзыв на это произведение.'
-            )
-        ]
 
     def validate_score(self, value):
         if not (1 <= value <= 10):
@@ -137,10 +136,22 @@ class ReviewSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate(self, data):
+        title_id = self.context['view'].kwargs['title_id']
+        title = get_object_or_404(Title, pk=title_id)
+        user = self.context['request'].user
+        if (title.reviews.filter(author=user).exists()
+                and self.context['request'].method == 'POST'):
+            raise serializers.ValidationError(
+                'Вы уже оставляли отзыв на это произведение.'
+            )
+        return data
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault(),
     )
 
     class Meta:
