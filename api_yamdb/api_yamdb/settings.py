@@ -1,18 +1,17 @@
+from datetime import timedelta
 from pathlib import Path
+
+# import smtp_pass
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,6 +20,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'api.apps.ApiConfig',
+    'reviews.apps.ReviewsConfig'
 ]
 
 MIDDLEWARE = [
@@ -52,10 +54,36 @@ TEMPLATES = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+
+SIMPLE_JWT = {
+    'TOKEN_OBTAIN_SERIALIZER': 'api.serializers.MyTokenObtainPairSerializer',
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+
+# EMAIL_BACKEND = smtp_pass.EMAIL_BACKEND
+# EMAIL_HOST = smtp_pass.EMAIL_HOST
+# EMAIL_PORT = smtp_pass.EMAIL_PORT
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = smtp_pass.EMAIL_HOST_USER
+# EMAIL_HOST_PASSWORD = smtp_pass.EMAIL_HOST_PASSWORD
+# DEFAULT_FROM_EMAIL = smtp_pass.DEFAULT_FROM_EMAIL
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
 WSGI_APPLICATION = 'api_yamdb.wsgi.application'
 
-
-# Database
 
 DATABASES = {
     'default': {
@@ -64,8 +92,8 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'reviews.MyUser'
 
-# Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -83,9 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
@@ -95,8 +121,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
 
