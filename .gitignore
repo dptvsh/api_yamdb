@@ -147,8 +147,6 @@ dmypy.json
 
 # папки со статикой и медиа
 media/
-# доступ к smtp сервису
-smtp_pass.py
 
 # настройки почтового сервиса
 smtp_pass.py
