@@ -136,12 +136,22 @@ class GenreViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
 
 
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    permission_classes = [IsAdminOrReadOnly]
-    pagination_class = LimitOffsetPagination
 
-    def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
-            return TitleSerializer
-        return TitleCreateUpdateSerializer
+def validate(self, data):
+    title_id = self.context['view'].kwargs['title_id']
+    title = get_object_or_404(Title, pk=title_id)
+    user = self.context['request'].user
+    if title.reviews.filter(author=user).exists():
+        raise serializers.ValidationError(
+            'Вы уже оставляли отзыв на это произведение.'
+        )
+    return data
+
+def validate(self, data): 
+        reviews = data['title'].reviews.all() 
+        user = self.context['request'].user 
+        if reviews.filter(author=user).exists(): 
+            raise serializers.ValidationError( 
+                'Вы уже оставляли отзыв на это произведение.' 
+            ) 
+        return data
