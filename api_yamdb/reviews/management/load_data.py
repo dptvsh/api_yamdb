@@ -2,8 +2,7 @@ import csv
 
 from django.core.management.base import BaseCommand
 
-from reviews.models import Category, Genre, Title, Review, Comment
-# from users.models import MyUser
+from reviews.models import Category, Genre, Title, Review, Comment, MyUser
 
 
 class Command(BaseCommand):
@@ -44,18 +43,18 @@ class Command(BaseCommand):
                 )
         self.stdout.write('Titles imported successfully.')
 
-    # def import_users(self):
-    #     with open('static/data/users.csv', encoding='utf-8') as f:
-    #         reader = csv.DictReader(f)
-    #         for row in reader:
-    #             MyUser.objects.get_or_create(
-    #                 id=row['id'],
-    #                 username=row['username'],
-    #                 email=row['email'],
-    #                 role=row['role'],
-    #                 bio=row['bio']
-    #             )
-    #     self.stdout.write('Users imported successfully.')
+    def import_users(self):
+        with open('static/data/users.csv', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                MyUser.objects.get_or_create(
+                    id=row['id'],
+                    username=row['username'],
+                    email=row['email'],
+                    role=row['role'],
+                    bio=row['bio']
+                )
+        self.stdout.write('Users imported successfully.')
 
     def import_reviews(self):
         with open('static/data/review.csv', encoding='utf-8') as f:
