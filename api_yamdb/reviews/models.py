@@ -6,26 +6,34 @@ from django.db.models import Avg
 
 MAX_LENGTH_NAME = 256
 MAX_LENGTH_SLUG = 50
+MAX_LENGTH_EMAIL = 254
+MAX_LENGTH_USERNAME = 150
+MAX_LENGTH_CONFIRMATION_CODE = 6
+MAX_LENGTH_ROLE = 10
 
 
 class MyUser(AbstractUser):
     """Кастомная модель юзера, позволяет выбрать роль каждого пользователя"""
-    email = models.EmailField('Почта', max_length=254, unique=True)
+    email = models.EmailField(
+        'Почта',
+        max_length=MAX_LENGTH_EMAIL,
+        unique=True
+    )
     username = models.CharField(
         'Имя пользователя',
-        max_length=150,
+        max_length=MAX_LENGTH_USERNAME,
         unique=True
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
-        max_length=6,
+        max_length=MAX_LENGTH_CONFIRMATION_CODE,
         blank=True,
         null=True,
     )
     bio = models.TextField('Биография', blank=True, null=True, default='')
     role = models.CharField(
         'Роль',
-        max_length=10,
+        max_length=MAX_LENGTH_ROLE,
         choices=[
             ('user', 'Пользователь'),
             ('moderator', 'Модератор'),
