@@ -13,16 +13,17 @@ MAX_LENGTH_ROLE = 10
 
 
 class MyUser(AbstractUser):
-    """Кастомная модель юзера, позволяет выбрать роль каждого пользователя"""
+    """Кастомная модель юзера, позволяет выбрать роль каждого пользователя."""
+
     email = models.EmailField(
         'Почта',
         max_length=MAX_LENGTH_EMAIL,
-        unique=True
+        unique=True,
     )
     username = models.CharField(
         'Имя пользователя',
         max_length=MAX_LENGTH_USERNAME,
-        unique=True
+        unique=True,
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
@@ -53,12 +54,12 @@ class MyUser(AbstractUser):
 class Category(models.Model):
     name = models.CharField(
         max_length=MAX_LENGTH_NAME,
-        verbose_name='Название категории'
+        verbose_name='Название категории',
     )
     slug = models.SlugField(
         unique=True,
         max_length=MAX_LENGTH_SLUG,
-        verbose_name='Уникальный идентификатор'
+        verbose_name='Уникальный идентификатор',
     )
 
     class Meta:
@@ -72,12 +73,12 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(
         max_length=MAX_LENGTH_NAME,
-        verbose_name='Название жанра'
+        verbose_name='Название жанра',
     )
     slug = models.SlugField(
         unique=True,
         max_length=MAX_LENGTH_SLUG,
-        verbose_name='Уникальный идентификатор'
+        verbose_name='Уникальный идентификатор',
     )
 
     class Meta:
@@ -91,25 +92,25 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(
         max_length=MAX_LENGTH_NAME,
-        verbose_name='Название произведения'
+        verbose_name='Название произведения',
     )
     year = models.PositiveIntegerField(verbose_name='Год выпуска')
     description = models.TextField(
         blank=True,
         null=True,
-        verbose_name='Описание'
+        verbose_name='Описание',
     )
     genre = models.ManyToManyField(
         Genre,
         related_name='titles',
-        verbose_name='Жанр'
+        verbose_name='Жанр',
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         related_name='titles',
-        verbose_name='Категория'
+        verbose_name='Категория',
     )
 
     @property

@@ -38,7 +38,6 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author', 'text', 'pub_date', 'score')
     search_fields = ('title', 'author', 'text')
     list_filter = ('title', 'author', 'score')
-    empty_value_display = '-пусто-'
 
 
 @admin.register(Comment)
@@ -46,4 +45,3 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'review', 'author', 'text', 'pub_date')
     search_fields = ('review', 'author', 'text')
     list_filter = ('review', 'author')
-    empty_value_display = '-пусто-'

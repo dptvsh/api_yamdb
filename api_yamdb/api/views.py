@@ -3,7 +3,6 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django_filters import rest_framework as django_filters
-from rest_framework.filters import SearchFilter
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -12,9 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import (IsAdminOrReadOnly, IsAdminOrSuperUser,
-                             IsAuthorOrReadOnly,
-                             IsAdminOrReadOnlyWithRestrictedGet)
+from api.permissions import (IsAdminOrReadOnly,
+                             IsAdminOrReadOnlyWithRestrictedGet,
+                             IsAdminOrSuperUser, IsAuthorOrReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, MyTokenObtainPairSerializer,
                              ReviewSerializer, TitleCreateUpdateSerializer,
@@ -24,7 +23,8 @@ from reviews.models import Category, Genre, MyUser, Review, Title
 
 
 class UserRegistrationView(generics.CreateAPIView):
-    """Для создания нового юзера и отправки кода подтверждения на почту"""
+    """Для создания нового юзера и отправки кода подтверждения на почту."""
+
     serializer_class = UserRegistrationSerializer
 
     def create(self, request, *args, **kwargs):
@@ -68,7 +68,8 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 class TokenObtainView(generics.GenericAPIView):
-    """Для генерации токена"""
+    """Для генерации токена."""
+
     serializer_class = MyTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
@@ -86,7 +87,8 @@ class TokenObtainView(generics.GenericAPIView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """Для работы с пользователями"""
+    """Для работы с пользователями."""
+
     queryset = MyUser.objects.all()
     permission_classes = (IsAdminOrSuperUser, IsAuthenticated)
     serializer_class = UsersSerializerForAdmin
@@ -126,14 +128,20 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+    """Класс для работы с категориями произведений."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminOrReadOnlyWithRestrictedGet]
+    permission_classes = (IsAdminOrReadOnlyWithRestrictedGet,)
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
-    filter_backends = [SearchFilter]
-    search_fields = ['name']
-    http_method_names = ['get', 'post', 'delete']
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    http_method_names = (
+        'get',
+        'post',
+        'delete',
+    )
 
     def retrieve(self, request, *args, **kwargs):
         return Response(
@@ -142,14 +150,20 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(viewsets.ModelViewSet):
+    """Класс для работы с жанрами произведений."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [IsAdminOrReadOnlyWithRestrictedGet]
+    permission_classes = (IsAdminOrReadOnlyWithRestrictedGet,)
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
-    filter_backends = [SearchFilter]
-    search_fields = ['name']
-    http_method_names = ['get', 'post', 'delete']
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    http_method_names = (
+        'get',
+        'post',
+        'delete',
+    )
 
     def retrieve(self, request, *args, **kwargs):
         return Response(
@@ -158,26 +172,39 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleFilter(django_filters.FilterSet):
+    """Класс для фильтрации произведений."""
+
     genre = django_filters.CharFilter(
-        field_name='genre__slug', lookup_expr='exact'
+        field_name='genre__slug', lookup_expr='exact',
     )
     category = django_filters.CharFilter(
-        field_name='category__slug', lookup_expr='exact'
+        field_name='category__slug', lookup_expr='exact',
     )
-    year = django_filters.NumberFilter(field_name='year', lookup_expr='exact')
-    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+    year = django_filters.NumberFilter(
+        field_name='year', lookup_expr='exact',
+    )
+    name = django_filters.CharFilter(
+        field_name='name', lookup_expr='icontains',
+    )
 
     class Meta:
         model = Title
-        fields = ['genre', 'category', 'year', 'name']
+        fields = ('genre', 'category', 'year', 'name')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Класс для работы с произведениями."""
+
     queryset = Title.objects.all().distinct()
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
-    http_method_names = ['get', 'post', 'patch', 'delete']
-    filter_backends = [django_filters.DjangoFilterBackend, SearchFilter]
+    http_method_names = (
+        'get',
+        'post',
+        'patch',
+        'delete',
+    )
+    filter_backends = (django_filters.DjangoFilterBackend, SearchFilter)
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -187,13 +214,18 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Класс для работы с комментариями к отзывам."""
+
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = LimitOffsetPagination
     ordering = ('pub_date',)
-    http_method_names = [
-        'get', 'head', 'options', 'post', 'patch', 'delete'
-    ]
+    http_method_names = (
+        'get',
+        'post',
+        'patch',
+        'delete',
+    )
 
     def get_queryset(self):
         review_id = self.kwargs['review_id']
@@ -207,13 +239,18 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Класс для работы с отзывами на произведения."""
+
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = LimitOffsetPagination
     ordering = ('pub_date',)
-    http_method_names = [
-        'get', 'head', 'options', 'post', 'patch', 'delete'
-    ]
+    http_method_names = (
+        'get',
+        'post',
+        'patch',
+        'delete',
+    )
 
     def get_queryset(self):
         title_id = self.kwargs['title_id']
