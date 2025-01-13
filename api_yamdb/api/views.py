@@ -41,8 +41,8 @@ class UserRegistrationView(generics.CreateAPIView):
     def resend_confirmation_code(self, user):
         self.generate_send_confirmation_code(user)
         return Response(
-            {'message': 'Код подтверждения отправлен повторно.'},
-            status=200
+            {'email': user.email, 'username': user.username},
+            status=status.HTTP_200_OK
         )
 
     def register_new_user(self, request):
@@ -51,7 +51,10 @@ class UserRegistrationView(generics.CreateAPIView):
         user = serializer.save()
         # Генерация и отправка нового кода подтверждения
         self.generate_send_confirmation_code(user)
-        return Response(serializer.data, status=200)
+        return Response(
+            {'email': user.email, 'username': user.username},
+            status=status.HTTP_200_OK
+        )
 
     def generate_send_confirmation_code(self, user):
         confirmation_code = get_random_string(length=6)
