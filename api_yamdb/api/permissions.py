@@ -10,10 +10,32 @@ class IsAdminOrSuperUser(permissions.BasePermission):
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
+
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.is_authenticated and request.user.role == 'admin'
+        return request.user.is_authenticated and (
+            request.user.role == 'admin' or request.user.is_superuser
+        )
+
+
+class IsAdminOrReadOnlyWithRestrictedGet(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_authenticated and (
+            request.user.role == 'admin' or request.user.is_superuser
+        )
+
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'DELETE':
+            return request.user.is_authenticated and (
+                request.user.role == 'admin' or request.user.is_superuser
+            )
+        if request.method in permissions.SAFE_METHODS:
+            return False
+        return True
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):

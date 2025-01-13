@@ -2,15 +2,19 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
-from rest_framework import filters, generics, status, viewsets
+from django_filters import rest_framework as django_filters
+from rest_framework.filters import SearchFilter
+from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.permissions import (IsAdminOrReadOnly, IsAdminOrSuperUser,
-                             IsAuthorOrReadOnly)
+                             IsAuthorOrReadOnly,
+                             IsAdminOrReadOnlyWithRestrictedGet)
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, MyTokenObtainPairSerializer,
                              ReviewSerializer, TitleCreateUpdateSerializer,
@@ -86,7 +90,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = MyUser.objects.all()
     permission_classes = (IsAdminOrSuperUser, IsAuthenticated)
     serializer_class = UsersSerializerForAdmin
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
     http_method_names = (
@@ -124,23 +128,57 @@ class UserViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnlyWithRestrictedGet]
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
+    http_method_names = ['get', 'post', 'delete']
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnlyWithRestrictedGet]
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
+    http_method_names = ['get', 'post', 'delete']
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+
+class TitleFilter(django_filters.FilterSet):
+    genre = django_filters.CharFilter(
+        field_name='genre__slug', lookup_expr='exact'
+    )
+    category = django_filters.CharFilter(
+        field_name='category__slug', lookup_expr='exact'
+    )
+    year = django_filters.NumberFilter(field_name='year', lookup_expr='exact')
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = Title
+        fields = ['genre', 'category', 'year', 'name']
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().distinct()
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = LimitOffsetPagination
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_backends = [django_filters.DjangoFilterBackend, SearchFilter]
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
