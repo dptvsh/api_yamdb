@@ -69,14 +69,6 @@ SIMPLE_JWT = {
 }
 
 
-# EMAIL_BACKEND = smtp_pass.EMAIL_BACKEND
-# EMAIL_HOST = smtp_pass.EMAIL_HOST
-# EMAIL_PORT = smtp_pass.EMAIL_PORT
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = smtp_pass.EMAIL_HOST_USER
-# EMAIL_HOST_PASSWORD = smtp_pass.EMAIL_HOST_PASSWORD
-# DEFAULT_FROM_EMAIL = smtp_pass.DEFAULT_FROM_EMAIL
-
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
@@ -109,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
