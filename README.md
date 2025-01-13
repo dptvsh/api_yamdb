@@ -12,26 +12,37 @@ YaMDb собирает отзывы пользователей на произв
 ## Установка
 
 1. Клонируйте репозиторий:
-   bash
-   git clone https://github.com/<username>/yamdb.git
-   cd yamdb
+
+   ```bash```
+
+   ```git clone https://github.com/<username>/yamdb.git```
+
+   ```cd yamdb```
+
 2. Установите зависимости:
-    python -m venv venv
-    source venv/bin/activate  # Для macOS/Linux
-    venv\Scripts\activate     # Для Windows
-    pip install -r requirements.txt
+
+    ```python -m venv venv```
+
+    ```source venv/bin/activate```  # Для macOS/Linux
+
+    ```venv\Scripts\activate```     # Для Windows
+
+    ```pip install -r requirements.txt```
+
 3. Выполните миграции:
-    python manage.py makemigrations
-        python manage.py migrate
+
+   ```python manage.py makemigrations```
+
+   ```python manage.py migrate```
 4. Создайте суперпользователя:
-    python manage.py createsuperuser
+    ```python manage.py createsuperuser```
 5. Запустите сервер:
-    python manage.py runserver
+    ```python manage.py runserver```
 
 ## Тесты
 
 Для запуска тестов выполните:
-    pytest
+    ```pytest```
 
 ## Наполнение базы данных
 
@@ -39,14 +50,18 @@ YaMDb собирает отзывы пользователей на произв
 
 ## Документация API
 
-Документация для API находится по адресу /redoc/ после запуска сервера.
+Документация для API находится по адресу ```/redoc/``` после запуска сервера.
 
 ## Примеры API-запросов
 
-Получение списка произведений
+Получение списка произведений:
+    ```
     GET /api/v1/titles/
-Добавление нового отзыва
-    POST /api/v1/titles/{title_id}/reviews/
+    ```
+
+Добавление нового отзыва:
+    ```POST /api/v1/titles/{title_id}/reviews/```
+
     {
       "text": "Отличное произведение!",
       "score": 9
