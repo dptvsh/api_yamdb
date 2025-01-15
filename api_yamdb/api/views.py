@@ -1,7 +1,4 @@
-from django.conf import settings
-from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from django.utils.crypto import get_random_string
 from django_filters import rest_framework as django_filters
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
@@ -19,6 +16,7 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              ReviewSerializer, TitleCreateUpdateSerializer,
                              TitleSerializer, UserRegistrationSerializer,
                              UsersSerializerForAdmin, UsersSerializerForUser)
+from api.utils import generate_and_send_confirmation_code
 from reviews.models import Category, Genre, MyUser, Review, Title
 
 
@@ -35,11 +33,11 @@ class UserRegistrationView(generics.CreateAPIView):
             # Если пользователь уже существует, отправляем повторный код
             return self.resend_confirmation_code(user)
 
-        # Если пользователь не существует, создаем нового
+        # Если пользователь не существует, создаём нового
         return self.register_new_user(request)
 
     def resend_confirmation_code(self, user):
-        self.generate_send_confirmation_code(user)
+        generate_and_send_confirmation_code(user)
         return Response(
             {'email': user.email, 'username': user.username},
             status=status.HTTP_200_OK
@@ -49,25 +47,10 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        # Генерация и отправка нового кода подтверждения
-        self.generate_send_confirmation_code(user)
         return Response(
             {'email': user.email, 'username': user.username},
             status=status.HTTP_200_OK
         )
-
-    def generate_send_confirmation_code(self, user):
-        confirmation_code = get_random_string(length=6)
-        user.confirmation_code = confirmation_code
-        user.save()
-        send_mail(
-            subject='Код подтверждения',
-            message=f'Ваш код подтверждения: {confirmation_code}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-        return confirmation_code
 
 
 class TokenObtainView(generics.GenericAPIView):
@@ -78,10 +61,7 @@ class TokenObtainView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        user = get_object_or_404(
-            MyUser, username=serializer.validated_data.get('username')
-        )
+        user = serializer.validated_data
 
         return Response(
             {'token': str(AccessToken.for_user(user))},
