@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 
+from api.utils import generate_and_send_confirmation_code
 from reviews.models import Category, Comment, Genre, MyUser, Review, Title
 
 
@@ -33,8 +34,8 @@ class UserRegistrationSerializer(BaseUsersSerializer):
         fields = ('username', 'email')
 
     def create(self, validated_data):
-        user = MyUser(**validated_data)
-        user.save()
+        user = super().create(validated_data)
+        generate_and_send_confirmation_code(user)
         return user
 
 
@@ -61,7 +62,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
         if user.confirmation_code != confirmation_code:
             raise serializers.ValidationError('Неверный код подтверждения.')
 
-        return data
+        return user
 
 
 class UsersSerializerForAdmin(BaseUsersSerializer):
