@@ -59,10 +59,11 @@ class MyUser(AbstractUser):
         return self.role == 'moderator'
 
 
-class Category(models.Model):
+class BaseNameSlugModel(models.Model):
+    """Базовая модель с полями name и slug для Category и Genre."""
     name = models.CharField(
         max_length=MAX_LENGTH_NAME,
-        verbose_name='Название категории',
+        verbose_name='Название',
     )
     slug = models.SlugField(
         unique=True,
@@ -70,31 +71,23 @@ class Category(models.Model):
         verbose_name='Уникальный идентификатор',
     )
 
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+
+class Category(BaseNameSlugModel):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-    def __str__(self):
-        return self.name
 
-
-class Genre(models.Model):
-    name = models.CharField(
-        max_length=MAX_LENGTH_NAME,
-        verbose_name='Название жанра',
-    )
-    slug = models.SlugField(
-        unique=True,
-        max_length=MAX_LENGTH_SLUG,
-        verbose_name='Уникальный идентификатор',
-    )
-
+class Genre(BaseNameSlugModel):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-
-    def __str__(self):
-        return self.name
 
 
 class Title(models.Model):
@@ -121,19 +114,19 @@ class Title(models.Model):
         verbose_name='Категория',
     )
 
-    @property
-    def rating(self):
-        average = self.reviews.aggregate(Avg('score'))['score__avg']
-        return round(average) if average is not None else None
+    class Meta:
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
     def save(self, *args, **kwargs):
         if self.year > datetime.datetime.now().year:
             raise ValueError("Год выпуска не может быть больше текущего.")
         super().save(*args, **kwargs)
 
-    class Meta:
-        verbose_name = 'Произведение'
-        verbose_name_plural = 'Произведения'
+    @property
+    def rating(self):
+        average = self.reviews.aggregate(Avg('score'))['score__avg']
+        return round(average) if average is not None else None
 
     def __str__(self):
         return self.name

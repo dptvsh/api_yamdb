@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as django_filters
-from rest_framework import generics, status, viewsets
+from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
+from api.filters import TitleFilter
 from api.permissions import (IsAdminOrReadOnly,
                              IsAdminOrReadOnlyWithRestrictedGet,
                              IsAdminOrSuperUser, IsAuthorOrReadOnly)
@@ -110,9 +111,13 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
     """Класс для работы с категориями произведений."""
-
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnlyWithRestrictedGet,)
@@ -120,21 +125,16 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
-    http_method_names = (
-        'get',
-        'post',
-        'delete',
-    )
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+    http_method_names = ('get', 'post', 'delete')
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
     """Класс для работы с жанрами произведений."""
-
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnlyWithRestrictedGet,)
@@ -142,43 +142,13 @@ class GenreViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
-    http_method_names = (
-        'get',
-        'post',
-        'delete',
-    )
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
-
-
-class TitleFilter(django_filters.FilterSet):
-    """Класс для фильтрации произведений."""
-
-    genre = django_filters.CharFilter(
-        field_name='genre__slug', lookup_expr='exact',
-    )
-    category = django_filters.CharFilter(
-        field_name='category__slug', lookup_expr='exact',
-    )
-    year = django_filters.NumberFilter(
-        field_name='year', lookup_expr='exact',
-    )
-    name = django_filters.CharFilter(
-        field_name='name', lookup_expr='icontains',
-    )
-
-    class Meta:
-        model = Title
-        fields = ('genre', 'category', 'year', 'name')
+    http_method_names = ('get', 'post', 'delete')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Класс для работы с произведениями."""
 
-    queryset = Title.objects.all().distinct()
+    queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
     http_method_names = (
