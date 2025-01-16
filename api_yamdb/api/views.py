@@ -96,7 +96,7 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def get_user(self, request):
         serializer_class = (
-            UsersSerializerForAdmin if request.user.role == 'admin'
+            UsersSerializerForAdmin if request.user.is_admin
             or request.user.is_superuser else UsersSerializerForUser
         )
         if request.method == 'PATCH':
