@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 
 from api.utils import generate_and_send_confirmation_code
+from reviews.constants import MAX_VALUE_SCORE, MIN_VALUE_SCORE
 from reviews.models import Category, Comment, Genre, MyUser, Review, Title
 
 
@@ -32,6 +33,11 @@ class UserRegistrationSerializer(BaseUsersSerializer):
     class Meta:
         model = MyUser
         fields = ('username', 'email')
+
+    def validate_email(self, value):
+        if MyUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Почта уже используется.")
+        return value
 
     def create(self, validated_data):
         user = super().create(validated_data)
@@ -143,9 +149,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('title',)
 
     def validate_score(self, value):
-        if not (1 <= value <= 10):
+        if not (MIN_VALUE_SCORE <= value <= MAX_VALUE_SCORE):
             raise serializers.ValidationError(
-                'Введите целое число от 1 до 10.'
+                f'Введите целое число от {MIN_VALUE_SCORE}'
+                'до {MAX_VALUE_SCORE}.'
             )
         return value
 

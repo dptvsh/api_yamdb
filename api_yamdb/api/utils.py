@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 
-from reviews.models import MAX_LENGTH_CONFIRMATION_CODE
+from reviews.constants import MAX_LENGTH_CONFIRMATION_CODE
 
 
 def generate_and_send_confirmation_code(user):

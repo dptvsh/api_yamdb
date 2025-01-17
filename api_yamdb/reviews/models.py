@@ -4,12 +4,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Avg
 
-MAX_LENGTH_NAME = 256
-MAX_LENGTH_SLUG = 50
-MAX_LENGTH_EMAIL = 254
-MAX_LENGTH_USERNAME = 150
-MAX_LENGTH_CONFIRMATION_CODE = 6
-MAX_LENGTH_ROLE = 10
+from reviews.constants import (MAX_LENGTH_CONFIRMATION_CODE, MAX_LENGTH_EMAIL,
+                               MAX_LENGTH_NAME, MAX_LENGTH_ROLE,
+                               MAX_LENGTH_SLUG, MAX_LENGTH_USERNAME,
+                               MAX_VALUE_SCORE, MIN_VALUE_SCORE)
 
 
 class MyUser(AbstractUser):
@@ -61,6 +59,7 @@ class MyUser(AbstractUser):
 
 class BaseNameSlugModel(models.Model):
     """Базовая модель с полями name и slug для Category и Genre."""
+
     name = models.CharField(
         max_length=MAX_LENGTH_NAME,
         verbose_name='Название',
@@ -119,7 +118,8 @@ class Title(models.Model):
         verbose_name_plural = 'Произведения'
 
     def save(self, *args, **kwargs):
-        if self.year > datetime.datetime.now().year:
+        year = int(self.year)
+        if year > datetime.datetime.now().year:
             raise ValueError("Год выпуска не может быть больше текущего.")
         super().save(*args, **kwargs)
 
@@ -154,6 +154,15 @@ class Review(models.Model):
             models.UniqueConstraint(fields=['title', 'author'],
                                     name='unique_review'),
         ]
+
+    def save(self, *args, **kwargs):
+        score = int(self.score)
+        if not (MIN_VALUE_SCORE <= score <= MAX_VALUE_SCORE):
+            raise ValueError(
+                f'Введите целое число от {MIN_VALUE_SCORE}'
+                'до {MAX_VALUE_SCORE}.'
+            )
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.author} о произведении "{self.title}"'

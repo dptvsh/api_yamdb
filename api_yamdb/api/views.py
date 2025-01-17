@@ -9,9 +9,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.filters import TitleFilter
-from api.permissions import (IsAdminOrReadOnly,
-                             IsAdminOrReadOnlyWithRestrictedGet,
-                             IsAdminOrSuperUser, IsAuthorOrReadOnly)
+from api.permissions import (IsAdminOrReadOnly, IsAdminOrSuperUser,
+                             IsAdminIsModeratorIsAuthorOrReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, MyTokenObtainPairSerializer,
                              ReviewSerializer, TitleCreateUpdateSerializer,
@@ -118,9 +117,10 @@ class CategoryViewSet(
     viewsets.GenericViewSet
 ):
     """Класс для работы с категориями произведений."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnlyWithRestrictedGet,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
     filter_backends = (SearchFilter,)
@@ -135,9 +135,10 @@ class GenreViewSet(
     viewsets.GenericViewSet
 ):
     """Класс для работы с жанрами произведений."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminOrReadOnlyWithRestrictedGet,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
     filter_backends = (SearchFilter,)
@@ -170,7 +171,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Класс для работы с комментариями к отзывам."""
 
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAdminIsModeratorIsAuthorOrReadOnly,)
     pagination_class = LimitOffsetPagination
     ordering = ('pub_date',)
     http_method_names = (
@@ -195,7 +196,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Класс для работы с отзывами на произведения."""
 
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAdminIsModeratorIsAuthorOrReadOnly,)
     pagination_class = LimitOffsetPagination
     ordering = ('pub_date',)
     http_method_names = (
