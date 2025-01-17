@@ -94,4 +94,12 @@ class Command(BaseCommand):
                 title = Title.objects.get(id=row['title_id'])
                 genre = Genre.objects.get(id=row['genre_id'])
                 title.genre.add(genre)
-        self.stdout.write('Genre-Title relationships imported successfully.')
+        self.stdout.write('Genre-Title imported successfully.')
+
+    def handle(self, *args, **options):
+        self.import_categories()
+        self.import_genres()
+        self.import_titles()
+        self.import_users()
+        self.import_reviews()
+        self.stdout.write(self.style.SUCCESS('Data imported successfully.'))
